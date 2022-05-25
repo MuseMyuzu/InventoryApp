@@ -56,6 +56,10 @@ class ItemListFragment : Fragment() {
 
         //ItemListAdapterを作成
         val adapter = ItemListAdapter {
+            //itemをクリックしたとき、遷移する
+            val action = ItemListFragmentDirections.actionItemListFragmentToItemDetailFragment(it.id)
+            //navContorollerを探してnavigate
+            this.findNavController().navigate(action)
         }
         //adapterをセット
         binding.recyclerView.adapter = adapter

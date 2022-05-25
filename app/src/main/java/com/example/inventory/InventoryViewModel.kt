@@ -40,6 +40,11 @@ class InventoryViewModel(private val itemDao: ItemDao): ViewModel() {
         }
         return true
     }
+
+    //idからLiveDataのItemを取得
+    fun retrieveItem(id: Int): LiveData<Item> {
+        return itemDao.getItem(id).asLiveData()
+    }
 }
 
 //InventoryViewModelをインスタンス化
