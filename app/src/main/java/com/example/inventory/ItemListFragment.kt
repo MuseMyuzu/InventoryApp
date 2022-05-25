@@ -21,6 +21,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.inventory.databinding.ItemListFragmentBinding
@@ -33,6 +34,14 @@ class ItemListFragment : Fragment() {
     private var _binding: ItemListFragmentBinding? = null
     private val binding get() = _binding!!
 
+    //activityViewModelsで初期化
+    private val viewModel: InventoryViewModel by activityViewModels {
+        //コンストラクタ
+        InventoryViewModelFactory(
+            (activity?.application as InventoryApplication).database.itemDao()
+        )
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -44,6 +53,20 @@ class ItemListFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        //ItemListAdapterを作成
+        val adapter = ItemListAdapter {
+        }
+        //adapterをセット
+        binding.recyclerView.adapter = adapter
+        //オブザーバーをつけて、データの変更を見る
+        viewModel.allItems.observe(this.viewLifecycleOwner) { items ->
+            items.let {
+                //更新されたら、新しいデータをセット
+                adapter.submitList(it)
+            }
+        }
+
         binding.recyclerView.layoutManager = LinearLayoutManager(this.context)
         //FABのクリックリスナー（fragment_add_itemに飛ぶ）
         binding.floatingActionButton.setOnClickListener {
