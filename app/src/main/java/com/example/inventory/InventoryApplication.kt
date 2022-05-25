@@ -16,5 +16,12 @@
 package com.example.inventory
 
 import android.app.Application
+import com.example.inventory.data.ItemRoomDatabase
 
-class InventoryApplication : Application()
+class InventoryApplication : Application(){
+    //データベースのインスタンスを作成
+    //lazy: データベースに最初に参照したときにインスタンス化
+    val database: ItemRoomDatabase by lazy{
+        ItemRoomDatabase.getDatabase(this)
+    }
+}
