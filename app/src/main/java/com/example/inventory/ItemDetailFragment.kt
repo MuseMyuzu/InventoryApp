@@ -49,6 +49,15 @@ class ItemDetailFragment : Fragment() {
             itemName.text = item.itemName
             itemPrice.text = item.getFormattedPrice()
             itemCount.text = item.quantityInStock.toString()
+
+            //itemの在庫が0ならボタンを無効にする
+            sellItem.isEnabled = viewModel.isStockAvailable(item)
+            //SELLボタンのクリックリスナー
+            sellItem.setOnClickListener { viewModel.sellItem(item) }
+            //DELETEボタンのクリックリスナー
+            deleteItem.setOnClickListener { showConfirmationDialog() }
+            //FABのクリックリスナー
+            editItem.setOnClickListener { editItem() }
         }
     }
 
@@ -96,7 +105,18 @@ class ItemDetailFragment : Fragment() {
      * Deletes the current item and navigates to the list fragment.
      */
     private fun deleteItem() {
+        viewModel.deleteItem(item)
         findNavController().navigateUp()
+    }
+
+    //itemの編集
+    private fun editItem() {
+        //AddItemと同じ画面に遷移（ただし、タイトルはEdit Item）
+        val action = ItemDetailFragmentDirections.actionItemDetailFragmentToAddItemFragment(
+            getString(R.string.edit_fragment_title),
+            item.id
+        )
+        this.findNavController().navigate(action)
     }
 
     /**

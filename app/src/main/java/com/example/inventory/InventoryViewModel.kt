@@ -45,6 +45,61 @@ class InventoryViewModel(private val itemDao: ItemDao): ViewModel() {
     fun retrieveItem(id: Int): LiveData<Item> {
         return itemDao.getItem(id).asLiveData()
     }
+
+    //Itemを更新
+    private fun updateItem(item: Item){
+        viewModelScope.launch {
+            itemDao.update(item)
+        }
+    }
+
+    //SELLボタンを押したときの処理
+    fun sellItem(item: Item) {
+        //在庫が0より大きいか確認
+        if (item.quantityInStock > 0) {
+            //在庫数を1減らす（copy関数で、一部の値だけ異なるitemを作成）
+            val newItem = item.copy(quantityInStock = item.quantityInStock - 1)
+            //新しいitemで古いitemを上書き
+            updateItem(newItem)
+        }
+    }
+
+    //在庫が0より大きいか確認
+    fun isStockAvailable(item: Item): Boolean {
+        return (item.quantityInStock > 0)
+    }
+
+    //itemを削除
+    fun deleteItem(item: Item) {
+        viewModelScope.launch {
+            itemDao.delete(item)
+        }
+    }
+
+    //渡された情報からItemインスタンスを作成
+    private fun getUpdatedItemEntry(
+        itemId: Int,
+        itemName: String,
+        itemPrice: String,
+        itemCount: String
+    ): Item {
+        return Item(
+            id = itemId,
+            itemName = itemName,
+            itemPrice = itemPrice.toDouble(),
+            quantityInStock = itemCount.toInt()
+        )
+    }
+
+    fun updateItem(
+        itemId: Int,
+        itemName: String,
+        itemPrice: String,
+        itemCount: String
+    ) {
+        val updatedItem = getUpdatedItemEntry(itemId, itemName, itemPrice, itemCount)
+        updateItem(updatedItem)
+    }
 }
 
 //InventoryViewModelをインスタンス化
