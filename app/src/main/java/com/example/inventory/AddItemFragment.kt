@@ -22,13 +22,27 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
+import androidx.navigation.fragment.NavHostFragment.findNavController
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import com.example.inventory.data.Item
 import com.example.inventory.databinding.FragmentAddItemBinding
 
 /**
  * Fragment to add or update an item in the Inventory database.
  */
 class AddItemFragment : Fragment() {
+    //by activityViewModels: フラグメント間でviewModelを共有
+    private val viewModel: InventoryViewModel by activityViewModels {
+        lateinit var item: Item
+        //コンストラクタ
+        //databaseを使用してitemDaoコンストラクタを呼ぶ
+        InventoryViewModelFactory(
+            (activity?.application as InventoryApplication).database
+                .itemDao()
+        )
+    }
 
     private val navigationArgs: ItemDetailFragmentArgs by navArgs()
 
@@ -47,6 +61,37 @@ class AddItemFragment : Fragment() {
         return binding.root
     }
 
+    private fun isEntryValid(): Boolean{
+        //ViewModelのisEntryValidに渡す
+        return viewModel.isEntryValid(
+            binding.itemName.text.toString(),
+            binding.itemPrice.text.toString(),
+            binding.itemCount.text.toString()
+        )
+    }
+
+    private fun addNewItem(){
+        //テキストに空白がなければ、データベースに追加する
+        if(isEntryValid()){
+            viewModel.addNewItem(
+                binding.itemName.text.toString(),
+                binding.itemPrice.text.toString(),
+                binding.itemCount.text.toString(),
+            )
+        }
+        //ItemListFragmentに移動
+        val action = AddItemFragmentDirections.actionAddItemFragmentToItemListFragment()
+        findNavController().navigate(action)
+    }
+
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        //SAVEボタンを押したら、入力されたテキストをデータベースに追加
+        binding.saveAction.setOnClickListener {
+            addNewItem()
+        }
+    }
     /**
      * Called before fragment is destroyed.
      */

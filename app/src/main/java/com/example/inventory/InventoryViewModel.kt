@@ -31,6 +31,14 @@ class InventoryViewModel(private val itemDao: ItemDao): ViewModel() {
         val newItem = getNewItemEntry(itemName, itemPrice, itemCount)
         insertItem(newItem)
     }
+
+    //入力されたテキストが有効か（空白でないか）確認する
+    fun isEntryValid(itemName: String, itemPrice: String, itemCount: String): Boolean {
+        if (itemName.isBlank() || itemPrice.isBlank() || itemCount.isBlank()) {
+            return false
+        }
+        return true
+    }
 }
 
 //InventoryViewModelをインスタンス化
